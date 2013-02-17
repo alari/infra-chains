@@ -1,0 +1,15 @@
+target
+*.iml
+*.idea
+.idea
+.idea/
+stacktrace.log
+coverage-error.log
+out/
+.classpath
+.project
+.settings
+web-app/storage
+web-app/f
+infra-ca/web-app/f
+devDb*

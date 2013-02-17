@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="alari" name="infra.chains.ChainsManagerSpec" tests="10" time="0.113" timestamp="2013-02-17T20:33:21">
+  <properties />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="test autowired" time="0.015" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="pushes atom into clean chain" time="0.02" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may move an atom inside a band" time="0.008" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may move bands inside a chain" time="0.006" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may move an atom after another band" time="0.007" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may push an atom to a band" time="0.006" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may move an atom from band to band of the same type" time="0.006" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may move an atom before or after another band" time="0.005" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may split a band by moving an atom of another type inside it" time="0.009" />
+  <testcase classname="infra.chains.ChainsManagerSpec" name="we may set position of an atom in a chain to move it between bands, split, replace or something" time="0.006" />
+  <system-out><![CDATA[--Output from test autowired--
+--Output from pushes atom into clean chain--
+--Output from we may move an atom inside a band--
+--Output from we may move bands inside a chain--
+--Output from we may move an atom after another band--
+--Output from we may push an atom to a band--
+--Output from we may move an atom from band to band of the same type--
+--Output from we may move an atom before or after another band--
+--Output from we may split a band by moving an atom of another type inside it--
+--Output from we may set position of an atom in a chain to move it between bands, split, replace or something--
+]]></system-out>
+  <system-err><![CDATA[--Output from test autowired--
+--Output from pushes atom into clean chain--
+--Output from we may move an atom inside a band--
+--Output from we may move bands inside a chain--
+--Output from we may move an atom after another band--
+--Output from we may push an atom to a band--
+--Output from we may move an atom from band to band of the same type--
+--Output from we may move an atom before or after another band--
+--Output from we may split a band by moving an atom of another type inside it--
+--Output from we may set position of an atom in a chain to move it between bands, split, replace or something--
+]]></system-err>
+</testsuite>
