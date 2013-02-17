@@ -4,8 +4,6 @@ import grails.plugin.spock.IntegrationSpec
 import infra.ca.Atom
 import infra.ca.AtomPush
 import infra.ca.impl.AtomPOJOPush
-import infra.chains.Chain
-import infra.chains.ChainsManager
 import infra.chains.ex.NotFoundInChainException
 import spock.lang.Stepwise
 

@@ -1,6 +1,6 @@
-import infra.chains.ChainsManager
 import infra.chains.impl.BandFactoryImpl
 import infra.chains.impl.ChainFactoryImpl
+import infra.chains.impl.ChainsManagerImpl
 
 class InfraChainsGrailsPlugin {
     // the plugin version
@@ -45,7 +45,7 @@ Brief summary/description of the plugin.
     }
 
     def doWithSpring = {
-        chainsManager(ChainsManager)
+        chainsManager(ChainsManagerImpl)
         chainFactory(ChainFactoryImpl)
         bandFactory(BandFactoryImpl)
     }
