@@ -9,8 +9,6 @@ import infra.ca.AtomsManager;
 import infra.ca.StringIdContainer;
 import infra.ca.ex.CreativeAtomException;
 import infra.chains.ex.NotFoundInChainException;
-import infra.chains.impl.BandPOJO;
-import infra.chains.impl.ChainPOJO;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,11 +20,12 @@ import java.util.Map;
  */
 @Service
 public class ChainsManager {
-    private Class<? extends Chain> chainClass = ChainPOJO.class;
-    private Class<? extends Band> bandClass = BandPOJO.class;
-
     @Autowired
     private AtomsManager atomsManager;
+    @Autowired
+    private ChainFactory chainFactory;
+    @Autowired
+    private BandFactory bandFactory;
 
     private int idLength = 8;
 
@@ -38,7 +37,7 @@ public class ChainsManager {
      * @throws InstantiationException
      */
     public Chain buildChain() throws IllegalAccessException, InstantiationException {
-        return chainClass.newInstance();
+        return chainFactory.buildChain();
     }
 
     /**
@@ -502,7 +501,7 @@ public class ChainsManager {
      * @throws InstantiationException
      */
     private Band createBand(Chain chain) throws IllegalAccessException, InstantiationException {
-        Band band = bandClass.newInstance();
+        Band band = bandFactory.buildBand();
         band.setId(getUniqueBandId(chain));
         band.setAtoms(new LinkedList<Atom>());
         return band;
