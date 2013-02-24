@@ -12,12 +12,6 @@ class ChainsManagerSpec extends IntegrationSpec {
 
     ChainsManager chainsManager
 
-    def setup() {
-    }
-
-    def cleanup() {
-    }
-
     void "test autowired"() {
         expect:
         chainsManager != null
@@ -351,11 +345,6 @@ class ChainsManagerSpec extends IntegrationSpec {
         then:
         thrown(NotFoundInChainException)
     }
-
-    void "changing band' style"() {
-
-    }
-
 
     private AtomPush getData() {
         new AtomPOJOPush(
