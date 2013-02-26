@@ -7,6 +7,7 @@ import infra.ca.StringIdContainer;
 import infra.ca.ex.CreativeAtomException;
 import infra.chains.*;
 import infra.chains.ex.NotFoundInChainException;
+import infra.chains.ex.NotUniqueIdException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,18 +70,40 @@ public class ChainsManagerImpl implements ChainsManager {
     }
 
     /**
+     * Correctly instantiates an Atom
+     *
+     * @param chain
+     * @param data
+     * @return
+     * @throws CreativeAtomException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
+    private Atom build(Chain chain, AtomPush data) throws CreativeAtomException, IllegalAccessException, InstantiationException {
+        Atom atom = atomsManager.build(data);
+        if (atom.getId() == null) {
+            atom.setId(getUniqueAtomId(chain));
+            data.setId(atom.getId());
+        } else if (!isUniqueAtomId(chain, atom.getId())) {
+            throw new NotUniqueIdException();
+        }
+        return atom;
+    }
+
+    /**
      * Builds an atom from a user-provided data and adds it into a chain
      *
      * @param chain
      * @param data
      * @return a new built atom (already injected into a chain)
      * @throws infra.ca.ex.CreativeAtomException
+     *
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
     public Atom pushAtom(Chain chain, AtomPush data) throws CreativeAtomException, InstantiationException, IllegalAccessException {
-        data.setId(getUniqueAtomId(chain));
-        Atom atom = atomsManager.build(data);
+        Atom atom = build(chain, data);
+
         addAtom(chain, atom);
         return atom;
     }
@@ -94,8 +117,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @return
      */
     public Atom pushAtom(Chain chain, AtomPush data, String bandId) throws CreativeAtomException, InstantiationException, IllegalAccessException {
-        data.setId(getUniqueAtomId(chain));
-        Atom atom = atomsManager.build(data);
+        Atom atom = build(chain, data);
         Band band = getBand(chain, bandId);
 
         if (band.getType().equalsIgnoreCase(atom.getType())) {
@@ -144,6 +166,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param chain
      * @param id
      * @throws infra.ca.ex.CreativeAtomException
+     *
      */
     public void deleteAtom(Chain chain, String id) throws CreativeAtomException {
         atomsManager.delete(getAtom(chain, id));
@@ -155,6 +178,7 @@ public class ChainsManagerImpl implements ChainsManager {
      *
      * @param chain
      * @throws infra.ca.ex.CreativeAtomException
+     *
      */
     public void forUpdate(Chain chain) throws CreativeAtomException {
         for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) atomsManager.forUpdate(a);
@@ -165,6 +189,7 @@ public class ChainsManagerImpl implements ChainsManager {
      *
      * @param chain
      * @throws infra.ca.ex.CreativeAtomException
+     *
      */
     public void forRender(Chain chain) throws CreativeAtomException {
         for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) atomsManager.forRender(a);
@@ -175,6 +200,7 @@ public class ChainsManagerImpl implements ChainsManager {
      *
      * @param chain
      * @throws infra.ca.ex.CreativeAtomException
+     *
      */
     public void delete(Chain chain) throws CreativeAtomException {
         for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) atomsManager.delete(a);
@@ -187,6 +213,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param bandId
      * @return
      * @throws infra.chains.ex.NotFoundInChainException
+     *
      */
     public Band getBand(Chain chain, String bandId) throws NotFoundInChainException {
         for (Band b : chain.getBands()) if (b.getId().equalsIgnoreCase(bandId)) return b;
@@ -214,6 +241,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param atomId
      * @param moveToPosition
      * @throws infra.chains.ex.NotFoundInChainException
+     *
      */
     public void moveInBand(Chain chain, String atomId, int moveToPosition) throws NotFoundInChainException {
         Band band = getAtomBand(chain, atomId);
@@ -447,12 +475,14 @@ public class ChainsManagerImpl implements ChainsManager {
 
     /**
      * Sets band style
+     *
      * @param chain
      * @param bandId
      * @param style
      * @throws infra.chains.ex.NotFoundInChainException
+     *
      */
-    public void setBandStyle(Chain chain, String bandId, Map<String,String> style) throws NotFoundInChainException {
+    public void setBandStyle(Chain chain, String bandId, Map<String, String> style) throws NotFoundInChainException {
         getBand(chain, bandId).setStyles(style);
     }
 
@@ -515,25 +545,32 @@ public class ChainsManagerImpl implements ChainsManager {
      * @return unique id
      */
     private String getUniqueAtomId(Chain chain) {
-        boolean idNotUnique = true;
-        String id = null;
-        while (idNotUnique) {
+        String id;
+        do {
             id = randomId();
-            idNotUnique = false;
-            if (chain.getBands() != null) {
-                for (Band b : chain.getBands())
-                    if (b.getAtoms() != null) {
-                        for (Atom a : b.getAtoms()) {
-                            if (a.getId().equalsIgnoreCase(id)) {
-                                idNotUnique = true;
-                                break;
-                            }
-                        }
-                        if (idNotUnique) break;
-                    }
-            }
-        }
+        } while (!isUniqueAtomId(chain, id));
         return id;
+    }
+
+    /**
+     * Checks id uniqueness among all chain atoms
+     *
+     * @param chain
+     * @param id
+     * @return boolean
+     */
+    private boolean isUniqueAtomId(Chain chain, String id) {
+        if (chain.getBands() != null) {
+            for (Band b : chain.getBands())
+                if (b.getAtoms() != null) {
+                    for (Atom a : b.getAtoms()) {
+                        if (a.getId().equalsIgnoreCase(id)) {
+                            return false;
+                        }
+                    }
+                }
+        }
+        return true;
     }
 
     /**
@@ -543,20 +580,28 @@ public class ChainsManagerImpl implements ChainsManager {
      * @return band id
      */
     private String getUniqueBandId(Chain chain) {
-        boolean idNotUnique = true;
-        String id = null;
-        while (idNotUnique) {
+        String id;
+        do {
             id = randomId();
-            idNotUnique = false;
-            if (chain.getBands() != null) {
-                for (Band b : chain.getBands())
-                    if (b.getId().equalsIgnoreCase(id)) {
-                        idNotUnique = true;
-                        break;
-                    }
-            }
-        }
+        } while (!isUniqueBandId(chain, id));
         return id;
+    }
+
+    /**
+     * Checks if an id is unique among chain bands
+     *
+     * @param chain
+     * @param id
+     * @return
+     */
+    private boolean isUniqueBandId(Chain chain, String id) {
+        if (chain.getBands() != null) {
+            for (Band b : chain.getBands())
+                if (b.getId().equalsIgnoreCase(id)) {
+                    return false;
+                }
+        }
+        return true;
     }
 
     /**
