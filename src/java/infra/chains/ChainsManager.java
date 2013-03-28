@@ -19,7 +19,7 @@ import java.util.Map;
  * @since 11/19/12 1:26 AM
  */
 @Service
-public interface ChainsManager {
+public interface ChainsManager<C extends Chain<B>, B extends Band<A>, A extends Atom, AP extends AtomPush> {
     /**
      * Builds a new Chain object
      *
@@ -27,7 +27,7 @@ public interface ChainsManager {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public Chain buildChain() throws IllegalAccessException, InstantiationException;
+    public C buildChain() throws IllegalAccessException, InstantiationException;
 
     /**
      * Adds an atom into a chain, possibly creates a new band object
@@ -37,7 +37,7 @@ public interface ChainsManager {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public void addAtom(Chain chain, Atom atom) throws IllegalAccessException, InstantiationException;
+    public void addAtom(C chain, A atom) throws IllegalAccessException, InstantiationException;
 
     /**
      * Builds an atom from a user-provided data and adds it into a chain
@@ -49,7 +49,7 @@ public interface ChainsManager {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public Atom pushAtom(Chain chain, AtomPush data) throws CreativeAtomException, InstantiationException, IllegalAccessException;
+    public A pushAtom(C chain, AP data) throws CreativeAtomException, InstantiationException, IllegalAccessException;
 
     /**
      * Builds and pushes an atom into specified band
@@ -59,7 +59,7 @@ public interface ChainsManager {
      * @param bandId
      * @return
      */
-    public Atom pushAtom(Chain chain, AtomPush data, String bandId) throws CreativeAtomException, InstantiationException, IllegalAccessException;
+    public A pushAtom(C chain, AP data, String bandId) throws CreativeAtomException, InstantiationException, IllegalAccessException;
 
     /**
      * Retrieves an atom from chain by id
@@ -68,7 +68,7 @@ public interface ChainsManager {
      * @param id
      * @return
      */
-    public Atom getAtom(Chain chain, String id) throws NotFoundInChainException;
+    public A getAtom(C chain, String id) throws NotFoundInChainException;
 
     /**
      * Removes an atom from chain by its id
@@ -76,7 +76,7 @@ public interface ChainsManager {
      * @param chain
      * @param id
      */
-    public void removeAtom(Chain chain, String id) throws NotFoundInChainException;
+    public void removeAtom(C chain, String id) throws NotFoundInChainException;
 
     /**
      * Deletes atom contents and removes it from a chain
@@ -85,7 +85,7 @@ public interface ChainsManager {
      * @param id
      * @throws CreativeAtomException
      */
-    public void deleteAtom(Chain chain, String id) throws CreativeAtomException;
+    public void deleteAtom(C chain, String id) throws CreativeAtomException;
 
     /**
      * Prepares a chain to render update
@@ -93,7 +93,7 @@ public interface ChainsManager {
      * @param chain
      * @throws CreativeAtomException
      */
-    public void forUpdate(Chain chain) throws CreativeAtomException;
+    public void forUpdate(C chain) throws CreativeAtomException;
 
     /**
      * Prepares a chain for common render
@@ -101,7 +101,7 @@ public interface ChainsManager {
      * @param chain
      * @throws CreativeAtomException
      */
-    public void forRender(Chain chain) throws CreativeAtomException;
+    public void forRender(C chain) throws CreativeAtomException;
 
     /**
      * Deletes all chain atoms contents
@@ -109,7 +109,7 @@ public interface ChainsManager {
      * @param chain
      * @throws CreativeAtomException
      */
-    public void delete(Chain chain) throws CreativeAtomException;
+    public void delete(C chain) throws CreativeAtomException;
 
     /**
      * Returns a band by its id
@@ -119,7 +119,7 @@ public interface ChainsManager {
      * @return
      * @throws NotFoundInChainException
      */
-    public Band getBand(Chain chain, String bandId) throws NotFoundInChainException;
+    public B getBand(C chain, String bandId) throws NotFoundInChainException;
 
     /**
      * Returns a band atom belongs to
@@ -130,7 +130,7 @@ public interface ChainsManager {
      * @throws infra.chains.ex.NotFoundInChainException
      *
      */
-    public Band getAtomBand(Chain chain, String atomId) throws NotFoundInChainException;
+    public B getAtomBand(C chain, String atomId) throws NotFoundInChainException;
 
     /**
      * Moves an atom to the specified position in its band
@@ -140,7 +140,7 @@ public interface ChainsManager {
      * @param moveToPosition
      * @throws NotFoundInChainException
      */
-    public void moveInBand(Chain chain, String atomId, int moveToPosition) throws NotFoundInChainException;
+    public void moveInBand(C chain, String atomId, int moveToPosition) throws NotFoundInChainException;
 
     /**
      * Moves a band to the specified position in a chain
@@ -149,7 +149,7 @@ public interface ChainsManager {
      * @param bandId
      * @param moveToPosition
      */
-    public void moveBand(Chain chain, String bandId, int moveToPosition);
+    public void moveBand(C chain, String bandId, int moveToPosition);
 
 
     /**
@@ -159,7 +159,7 @@ public interface ChainsManager {
      * @param atomId
      * @param bandId
      */
-    public void moveToBand(Chain chain, String atomId, String bandId) throws NotFoundInChainException, IllegalAccessException, InstantiationException;
+    public void moveToBand(C chain, String atomId, String bandId) throws NotFoundInChainException, IllegalAccessException, InstantiationException;
 
     /**
      * Moves an atom to specified position in a target band, splits a target if it's of the wrong type
@@ -169,7 +169,7 @@ public interface ChainsManager {
      * @param bandId
      * @param moveToPosition
      */
-    public void moveToBand(Chain chain, String atomId, String bandId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException;
+    public void moveToBand(C chain, String atomId, String bandId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException;
 
     /**
      * Moves an atom in a chain
@@ -178,7 +178,7 @@ public interface ChainsManager {
      * @param atomId
      * @param moveToPosition
      */
-    public void moveAtom(Chain chain, String atomId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException;
+    public void moveAtom(C chain, String atomId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException;
 
     /**
      * Sets band style
@@ -187,6 +187,6 @@ public interface ChainsManager {
      * @param style
      * @throws NotFoundInChainException
      */
-    public void setBandStyle(Chain chain, String bandId, Map<String,String> style) throws NotFoundInChainException;
+    public void setBandStyle(C chain, String bandId, Map<String,String> style) throws NotFoundInChainException;
 
 }

@@ -10,7 +10,7 @@ import java.util.Map;
  * @author alari
  * @since 11/19/12 1:23 AM
  */
-public interface Band extends StringIdContainer {
+public interface Band<A extends Atom> extends StringIdContainer {
     Map<String, String> getStyles();
 
     void setStyles(Map<String, String> styles);
@@ -19,7 +19,7 @@ public interface Band extends StringIdContainer {
 
     void setType(String type);
 
-    List<Atom> getAtoms();
+    List<A> getAtoms();
 
-    void setAtoms(List<Atom> atoms);
+    void setAtoms(List<A> atoms);
 }

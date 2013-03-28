@@ -10,7 +10,7 @@ import java.util.Map;
  * @author alari
  * @since 11/19/12 1:29 AM
  */
-public class BandPOJO implements Band {
+public class BandPOJO implements Band<Atom> {
     private String id;
     private Map<String,String> styles;
     private String type;

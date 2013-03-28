@@ -9,7 +9,7 @@ import java.util.List;
  * @author alari
  * @since 11/19/12 1:29 AM
  */
-public class ChainPOJO implements Chain {
+public class ChainPOJO implements Chain<Band> {
     public List<Band> getBands() {
         return bands;
     }

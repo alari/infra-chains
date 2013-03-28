@@ -21,13 +21,13 @@ import java.util.Map;
  * @since 11/19/12 1:26 AM
  */
 @Service
-public class ChainsManagerImpl implements ChainsManager {
+public class ChainsManagerImpl<C extends Chain<B>, B extends Band<A>, A extends Atom, AP extends AtomPush> implements ChainsManager<C,B,A,AP> {
     @Autowired
-    private AtomsManager atomsManager;
+    private AtomsManager<A,AP> atomsManager;
     @Autowired
-    private ChainFactory chainFactory;
+    private ChainFactory<C> chainFactory;
     @Autowired
-    private BandFactory bandFactory;
+    private BandFactory<B> bandFactory;
 
     private int idLength = 8;
 
@@ -38,7 +38,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public Chain buildChain() throws IllegalAccessException, InstantiationException {
+    public C buildChain() throws IllegalAccessException, InstantiationException {
         return chainFactory.buildChain();
     }
 
@@ -50,11 +50,11 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    public void addAtom(Chain chain, Atom atom) throws IllegalAccessException, InstantiationException {
+    public void addAtom(C chain, A atom) throws IllegalAccessException, InstantiationException {
         if (chain.getBands() == null) {
-            chain.setBands(new LinkedList<Band>());
+            chain.setBands(new LinkedList<B>());
         }
-        Band band = null;
+        B band = null;
         if (chain.getBands().size() > 0) {
             band = chain.getBands().get(chain.getBands().size() - 1);
             if (!band.getType().equalsIgnoreCase(atom.getType())) {
@@ -79,8 +79,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    private Atom build(Chain chain, AtomPush data) throws CreativeAtomException, IllegalAccessException, InstantiationException {
-        Atom atom = atomsManager.build(data);
+    private A build(C chain, AP data) throws CreativeAtomException, IllegalAccessException, InstantiationException {
+        A atom = atomsManager.build(data);
         if (atom.getId() == null) {
             atom.setId(getUniqueAtomId(chain));
             data.setId(atom.getId());
@@ -101,8 +101,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public Atom pushAtom(Chain chain, AtomPush data) throws CreativeAtomException, InstantiationException, IllegalAccessException {
-        Atom atom = build(chain, data);
+    public A pushAtom(C chain, AP data) throws CreativeAtomException, InstantiationException, IllegalAccessException {
+        A atom = build(chain, data);
 
         addAtom(chain, atom);
         return atom;
@@ -116,9 +116,9 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param bandId
      * @return
      */
-    public Atom pushAtom(Chain chain, AtomPush data, String bandId) throws CreativeAtomException, InstantiationException, IllegalAccessException {
-        Atom atom = build(chain, data);
-        Band band = getBand(chain, bandId);
+    public A pushAtom(C chain, AP data, String bandId) throws CreativeAtomException, InstantiationException, IllegalAccessException {
+        A atom = build(chain, data);
+        B band = getBand(chain, bandId);
 
         if (band.getType().equalsIgnoreCase(atom.getType())) {
             band.getAtoms().add(atom);
@@ -136,8 +136,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param id
      * @return
      */
-    public Atom getAtom(Chain chain, String id) throws NotFoundInChainException {
-        for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) if (a.getId().equalsIgnoreCase(id)) return a;
+    public A getAtom(C chain, String id) throws NotFoundInChainException {
+        for (B b : chain.getBands()) for (A a : b.getAtoms()) if (a.getId().equalsIgnoreCase(id)) return a;
         throw new NotFoundInChainException();
     }
 
@@ -147,9 +147,9 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param chain
      * @param id
      */
-    public void removeAtom(Chain chain, String id) throws NotFoundInChainException {
-        for (Band b : chain.getBands())
-            for (Atom a : b.getAtoms())
+    public void removeAtom(C chain, String id) throws NotFoundInChainException {
+        for (B b : chain.getBands())
+            for (A a : b.getAtoms())
                 if (a.getId().equalsIgnoreCase(id)) {
                     b.getAtoms().remove(a);
                     if (b.getAtoms().size() == 0) {
@@ -168,7 +168,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.ca.ex.CreativeAtomException
      *
      */
-    public void deleteAtom(Chain chain, String id) throws CreativeAtomException {
+    public void deleteAtom(C chain, String id) throws CreativeAtomException {
         atomsManager.delete(getAtom(chain, id));
         removeAtom(chain, id);
     }
@@ -180,8 +180,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.ca.ex.CreativeAtomException
      *
      */
-    public void forUpdate(Chain chain) throws CreativeAtomException {
-        for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) atomsManager.forUpdate(a);
+    public void forUpdate(C chain) throws CreativeAtomException {
+        for (B b : chain.getBands()) for (A a : b.getAtoms()) atomsManager.forUpdate(a);
     }
 
     /**
@@ -191,8 +191,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.ca.ex.CreativeAtomException
      *
      */
-    public void forRender(Chain chain) throws CreativeAtomException {
-        for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) atomsManager.forRender(a);
+    public void forRender(C chain) throws CreativeAtomException {
+        for (B b : chain.getBands()) for (A a : b.getAtoms()) atomsManager.forRender(a);
     }
 
     /**
@@ -202,8 +202,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.ca.ex.CreativeAtomException
      *
      */
-    public void delete(Chain chain) throws CreativeAtomException {
-        for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) atomsManager.delete(a);
+    public void delete(C chain) throws CreativeAtomException {
+        for (B b : chain.getBands()) for (A a : b.getAtoms()) atomsManager.delete(a);
     }
 
     /**
@@ -215,8 +215,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.chains.ex.NotFoundInChainException
      *
      */
-    public Band getBand(Chain chain, String bandId) throws NotFoundInChainException {
-        for (Band b : chain.getBands()) if (b.getId().equalsIgnoreCase(bandId)) return b;
+    public B getBand(C chain, String bandId) throws NotFoundInChainException {
+        for (B b : chain.getBands()) if (b.getId().equalsIgnoreCase(bandId)) return b;
         throw new NotFoundInChainException();
     }
 
@@ -229,8 +229,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.chains.ex.NotFoundInChainException
      *
      */
-    public Band getAtomBand(Chain chain, String atomId) throws NotFoundInChainException {
-        for (Band b : chain.getBands()) for (Atom a : b.getAtoms()) if (a.getId().equalsIgnoreCase(atomId)) return b;
+    public B getAtomBand(C chain, String atomId) throws NotFoundInChainException {
+        for (B b : chain.getBands()) for (A a : b.getAtoms()) if (a.getId().equalsIgnoreCase(atomId)) return b;
         throw new NotFoundInChainException();
     }
 
@@ -243,8 +243,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.chains.ex.NotFoundInChainException
      *
      */
-    public void moveInBand(Chain chain, String atomId, int moveToPosition) throws NotFoundInChainException {
-        Band band = getAtomBand(chain, atomId);
+    public void moveInBand(C chain, String atomId, int moveToPosition) throws NotFoundInChainException {
+        B band = getAtomBand(chain, atomId);
         moveInList(band.getAtoms(), atomId, moveToPosition);
     }
 
@@ -255,7 +255,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param bandId
      * @param moveToPosition
      */
-    public void moveBand(Chain chain, String bandId, int moveToPosition) {
+    public void moveBand(C chain, String bandId, int moveToPosition) {
         moveInList(chain.getBands(), bandId, moveToPosition);
     }
 
@@ -267,15 +267,15 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param atomId
      * @param bandId
      */
-    public void moveToBand(Chain chain, String atomId, String bandId) throws NotFoundInChainException, IllegalAccessException, InstantiationException {
-        Band sourceBand = getAtomBand(chain, atomId);
+    public void moveToBand(C chain, String atomId, String bandId) throws NotFoundInChainException, IllegalAccessException, InstantiationException {
+        B sourceBand = getAtomBand(chain, atomId);
         if (sourceBand.getId().equalsIgnoreCase(bandId)) {
             moveInList(sourceBand.getAtoms(), atomId, sourceBand.getAtoms().size() - 1);
         }
 
-        Band targetBand = getBand(chain, bandId);
-        Atom atom = null;
-        for (Atom a : sourceBand.getAtoms()) {
+        B targetBand = getBand(chain, bandId);
+        A atom = null;
+        for (A a : sourceBand.getAtoms()) {
             if (a.getId().equalsIgnoreCase(atomId)) {
                 atom = a;
             }
@@ -292,7 +292,7 @@ public class ChainsManagerImpl implements ChainsManager {
             int targetPosition = chain.getBands().indexOf(targetBand);
             // Is the next band is of required type?
             if (targetPosition < chain.getBands().size() - 1) {
-                Band nextBand = chain.getBands().get(targetPosition + 1);
+                B nextBand = chain.getBands().get(targetPosition + 1);
                 if (nextBand.getType().equalsIgnoreCase(sourceBand.getType())) {
                     sourceBand.getAtoms().remove(atom);
                     nextBand.getAtoms().add(0, atom);
@@ -308,7 +308,7 @@ public class ChainsManagerImpl implements ChainsManager {
                 chain.getBands().add(targetPosition, sourceBand);
             } else {
                 // Create a new band
-                Band newBand = copyBand(chain, sourceBand);
+                B newBand = copyBand(chain, sourceBand);
                 sourceBand.getAtoms().remove(atom);
                 newBand.getAtoms().add(atom);
                 chain.getBands().add(targetPosition + 1, newBand);
@@ -324,15 +324,15 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param bandId
      * @param moveToPosition
      */
-    public void moveToBand(Chain chain, String atomId, String bandId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException {
-        Band sourceBand = getAtomBand(chain, atomId);
+    public void moveToBand(C chain, String atomId, String bandId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException {
+        B sourceBand = getAtomBand(chain, atomId);
         // Target is a source -- degrade
         if (sourceBand.getId().equalsIgnoreCase(bandId)) {
             moveInBand(chain, atomId, moveToPosition);
             return;
         }
 
-        Band targetBand = getBand(chain, bandId);
+        B targetBand = getBand(chain, bandId);
         // Moving right after the target band -- degrade
         if (targetBand.getAtoms().size() <= moveToPosition) {
             moveToBand(chain, atomId, bandId);
@@ -340,8 +340,8 @@ public class ChainsManagerImpl implements ChainsManager {
         }
 
         // We actually need to move
-        Atom atom = null;
-        for (Atom a : sourceBand.getAtoms()) {
+        A atom = null;
+        for (A a : sourceBand.getAtoms()) {
             if (a.getId().equalsIgnoreCase(atomId)) {
                 atom = a;
             }
@@ -371,7 +371,7 @@ public class ChainsManagerImpl implements ChainsManager {
                         chain.getBands().add(0, sourceBand);
                     } else {
                         sourceBand.getAtoms().remove(atom);
-                        Band newBand = copyBand(chain, sourceBand);
+                        B newBand = copyBand(chain, sourceBand);
                         newBand.getAtoms().add(atom);
                         chain.getBands().add(0, newBand);
                     }
@@ -383,7 +383,7 @@ public class ChainsManagerImpl implements ChainsManager {
             } else {
                 // It's inside the target band and we have to split it
                 // Prepare new band object
-                Band newBand;
+                B newBand;
                 if (sourceBand.getAtoms().size() == 1) {
                     newBand = sourceBand;
                     chain.getBands().remove(sourceBand);
@@ -395,11 +395,11 @@ public class ChainsManagerImpl implements ChainsManager {
                 int targetPosition = chain.getBands().indexOf(targetBand);
 
                 // Prepare second part of target band
-                Band secondTarget = copyBand(chain, targetBand);
+                B secondTarget = copyBand(chain, targetBand);
                 secondTarget.getAtoms().addAll(targetBand.getAtoms().subList(moveToPosition, targetBand.getAtoms().size()));
                 targetBand.setAtoms(targetBand.getAtoms().subList(0, moveToPosition));
 
-                List<Band> bands = new LinkedList<Band>();
+                List<B> bands = new LinkedList<B>();
                 bands.add(newBand);
                 bands.add(secondTarget);
 
@@ -415,22 +415,22 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param atomId
      * @param moveToPosition
      */
-    public void moveAtom(Chain chain, String atomId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException {
+    public void moveAtom(C chain, String atomId, int moveToPosition) throws NotFoundInChainException, InstantiationException, IllegalAccessException {
         // left position index in a band
         int bandOffset = 0;
         // right position index in a band
         int bandEdge = 0;
 
         // Where an atom is to be placed to
-        Band targetBand = null;
+        B targetBand = null;
         int targetBandPosition = 0;
 
         // Source info
-        Band sourceBand = null;
+        B sourceBand = null;
         int sourceBandPosition = 0;
 
         // Iterating through bands to find source and target
-        for (Band b : chain.getBands()) {
+        for (B b : chain.getBands()) {
             bandEdge += b.getAtoms().size();
             if (moveToPosition >= bandOffset && moveToPosition < bandEdge) {
                 targetBand = b;
@@ -440,7 +440,7 @@ public class ChainsManagerImpl implements ChainsManager {
                 break;
             }
             sourceBandPosition = 0;
-            for (Atom a : b.getAtoms()) {
+            for (A a : b.getAtoms()) {
                 if (a.getId().equalsIgnoreCase(atomId)) {
                     sourceBand = b;
                     break;
@@ -482,7 +482,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws infra.chains.ex.NotFoundInChainException
      *
      */
-    public void setBandStyle(Chain chain, String bandId, Map<String, String> style) throws NotFoundInChainException {
+    public void setBandStyle(C chain, String bandId, Map<String, String> style) throws NotFoundInChainException {
         getBand(chain, bandId).setStyles(style);
     }
 
@@ -531,10 +531,10 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws IllegalAccessException
      * @throws InstantiationException
      */
-    private Band createBand(Chain chain) throws IllegalAccessException, InstantiationException {
-        Band band = bandFactory.buildBand();
+    private B createBand(C chain) throws IllegalAccessException, InstantiationException {
+        B band = bandFactory.buildBand();
         band.setId(getUniqueBandId(chain));
-        band.setAtoms(new LinkedList<Atom>());
+        band.setAtoms(new LinkedList<A>());
         return band;
     }
 
@@ -544,7 +544,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param chain to place an atom in
      * @return unique id
      */
-    private String getUniqueAtomId(Chain chain) {
+    private String getUniqueAtomId(C chain) {
         String id;
         do {
             id = randomId();
@@ -559,11 +559,11 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param id
      * @return boolean
      */
-    private boolean isUniqueAtomId(Chain chain, String id) {
+    private boolean isUniqueAtomId(C chain, String id) {
         if (chain.getBands() != null) {
-            for (Band b : chain.getBands())
+            for (B b : chain.getBands())
                 if (b.getAtoms() != null) {
-                    for (Atom a : b.getAtoms()) {
+                    for (A a : b.getAtoms()) {
                         if (a.getId().equalsIgnoreCase(id)) {
                             return false;
                         }
@@ -579,7 +579,7 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param chain
      * @return band id
      */
-    private String getUniqueBandId(Chain chain) {
+    private String getUniqueBandId(C chain) {
         String id;
         do {
             id = randomId();
@@ -594,9 +594,9 @@ public class ChainsManagerImpl implements ChainsManager {
      * @param id
      * @return
      */
-    private boolean isUniqueBandId(Chain chain, String id) {
+    private boolean isUniqueBandId(C chain, String id) {
         if (chain.getBands() != null) {
-            for (Band b : chain.getBands())
+            for (B b : chain.getBands())
                 if (b.getId().equalsIgnoreCase(id)) {
                     return false;
                 }
@@ -613,8 +613,8 @@ public class ChainsManagerImpl implements ChainsManager {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    private Band copyBand(Chain chain, Band source) throws InstantiationException, IllegalAccessException {
-        Band band = createBand(chain);
+    private B copyBand(C chain, B source) throws InstantiationException, IllegalAccessException {
+        B band = createBand(chain);
         band.setType(source.getType());
         band.setStyles(source.getStyles());
         return band;
